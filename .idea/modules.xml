@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Cookbook Fullstack.iml" filepath="$PROJECT_DIR$/.idea/Cookbook Fullstack.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cookbook/cookbook.iml" filepath="$PROJECT_DIR$/cookbook/cookbook.iml" />
     </modules>
   </component>
 </project>
