@@ -1,4 +1,4 @@
-package dev.arcaninar.cookbook;
+package dev.arcaninar.cookbook.documents;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

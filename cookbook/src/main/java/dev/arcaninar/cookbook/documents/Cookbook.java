@@ -1,7 +1,8 @@
-package dev.arcaninar.cookbook;
+package dev.arcaninar.cookbook.documents;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import dev.arcaninar.cookbook.ObjectIdSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bson.types.ObjectId;
@@ -27,6 +28,8 @@ public class Cookbook {
     private List<String> steps;
     private List<String> labels;
     private NutritionalFacts nutritionalFacts;
+    private Double rating;
+    private Integer ratingCount;
     @DocumentReference
     private List<Rating> ratingList;
 
@@ -41,6 +44,8 @@ public class Cookbook {
         this.steps = List.of();
         this.labels = List.of();
         this.nutritionalFacts = new NutritionalFacts();
+        this.rating = 0.0;
+        this.ratingCount = 0;
         this.ratingList = List.of();
     }
 }

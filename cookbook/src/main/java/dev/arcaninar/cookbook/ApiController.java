@@ -1,5 +1,9 @@
 package dev.arcaninar.cookbook;
 
+import dev.arcaninar.cookbook.documents.Cookbook;
+import dev.arcaninar.cookbook.documents.SimpleCookbook;
+import dev.arcaninar.cookbook.reposervice.CookbookService;
+import dev.arcaninar.cookbook.reposervice.SimpleCookbookService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,11 +19,13 @@ import java.util.List;
 @RequestMapping("/api/v1")
 public class ApiController {
     @Autowired
+    private SimpleCookbookService simpleCookbookService;
+    @Autowired
     private CookbookService cookbookService;
 
     @GetMapping("/cookbooks")
-    public ResponseEntity<List<Cookbook>> getAllCookbook() {
-        return new ResponseEntity<>(cookbookService.allCookbook(), HttpStatus.OK);
+    public ResponseEntity<List<SimpleCookbook>> getAllCookbook() {
+        return new ResponseEntity<>(simpleCookbookService.allSimpleCookbooks(), HttpStatus.OK);
     }
 
     @GetMapping("/cookbook/{id}")
