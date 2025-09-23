@@ -25,13 +25,13 @@ public class RatingService {
     public Rating createRating(Integer ratingValue, String review, String cookbookId) {
         Rating rating = ratingRepository.insert(new Rating(ratingValue, review));
 
-        Cookbook cookbook = cookbookService.cookbookById(new ObjectId(cookbookId));
+        Cookbook cookbook = cookbookService.cookbookById(cookbookId);
 
-        double newRating = (cookbook.getRating() * cookbook.getRatingCount() + ratingValue) / (cookbook.getRatingCount() + 1);
+        double newRatingValue = (cookbook.getRating() * cookbook.getRatingCount() + ratingValue) / (cookbook.getRatingCount() + 1);
 
         Update update = new Update()
                 .push("ratingList").value(rating)
-                .set("rating", newRating)
+                .set("rating", newRatingValue)
                 .inc("ratingCount", 1);
 
         mongoTemplate.update(Cookbook.class)
@@ -42,21 +42,21 @@ public class RatingService {
         return rating;
     }
 
-    public Rating modifyRating(ObjectId objectId, Integer ratingValue, String review, String cookbookId) {
-        Rating rating = ratingRepository.findById(objectId).orElse(new Rating());
+    public Rating modifyRating(String id, Integer ratingValue, String review, String cookbookId) {
+        Rating rating = ratingRepository.findById(new ObjectId(id)).orElse(new Rating());
 
         if (rating.getId() == null) {
             return new Rating();
         }
 
         if (!Objects.equals(rating.getRating(), ratingValue)) {
-            Cookbook cookbook = cookbookService.cookbookById(new ObjectId(cookbookId));
+            Cookbook cookbook = cookbookService.cookbookById(cookbookId);
 
-            double newRating = (cookbook.getRating() * cookbook.getRatingCount() - rating.getRating() + ratingValue) / cookbook.getRatingCount();
+            double newRatingValue = (cookbook.getRating() * cookbook.getRatingCount() - rating.getRating() + ratingValue) / cookbook.getRatingCount();
 
             mongoTemplate.update(Cookbook.class)
                     .matching(Criteria.where("_id").is(cookbookId))
-                    .apply(new Update().set("rating", newRating))
+                    .apply(new Update().set("rating", newRatingValue))
                     .first();
         }
 
@@ -65,9 +65,35 @@ public class RatingService {
                 .set("review", review);
 
         mongoTemplate.update(Rating.class)
-                .matching(Criteria.where("_id").is(objectId.toString()))
+                .matching(Criteria.where("_id").is(id))
                 .apply(update)
                 .first();
+
+        return rating;
+    }
+
+    public Rating deleteRating(String id, String cookbookId) {
+        Rating rating = ratingRepository.findById(new ObjectId(id)).orElse(new Rating());
+
+        if (rating.getId() == null) {
+            return new Rating();
+        }
+
+        Cookbook cookbook = cookbookService.cookbookById(cookbookId);
+
+        double newRatingValue = (cookbook.getRating() * cookbook.getRatingCount() - rating.getRating()) / (cookbook.getRatingCount() - 1);
+
+        Update update = new Update()
+                .pull("ratingList", rating)
+                .set("rating", newRatingValue)
+                .inc("ratingCount", -1);
+
+        mongoTemplate.update(Cookbook.class)
+                .matching(Criteria.where("_id").is(cookbookId))
+                .apply(update)
+                .first();
+
+        ratingRepository.deleteById(new ObjectId(id));
 
         return rating;
     }

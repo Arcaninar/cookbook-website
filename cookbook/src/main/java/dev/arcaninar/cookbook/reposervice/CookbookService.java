@@ -12,8 +12,8 @@ public class CookbookService {
     @Autowired
     private CookbookRepository cookbookRepository;
 
-    public Cookbook cookbookById(ObjectId id) {
-        Optional<Cookbook> optionalCookbook = cookbookRepository.findById(id);
+    public Cookbook cookbookById(String id) {
+        Optional<Cookbook> optionalCookbook = cookbookRepository.findById(new ObjectId(id));
         return optionalCookbook.orElse(new Cookbook());
     }
 
