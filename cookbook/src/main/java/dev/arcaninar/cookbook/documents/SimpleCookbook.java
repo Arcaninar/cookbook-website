@@ -22,6 +22,7 @@ public class SimpleCookbook {
     private String category;
     private String cookingTimeUnit;
     private Integer cookingTimeValue;
+    private List<String> ingredients;
     private List<String> labels;
     private Double rating;
 }

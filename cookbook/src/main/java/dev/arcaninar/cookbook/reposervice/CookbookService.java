@@ -16,4 +16,8 @@ public class CookbookService {
         Optional<Cookbook> optionalCookbook = cookbookRepository.findById(id);
         return optionalCookbook.orElse(new Cookbook());
     }
+
+    public Optional<Cookbook> cookbookByName(String name) {
+        return cookbookRepository.findByName(name);
+    }
 }

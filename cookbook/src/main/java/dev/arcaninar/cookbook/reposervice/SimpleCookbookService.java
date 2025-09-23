@@ -14,4 +14,8 @@ public class SimpleCookbookService {
     public List<SimpleCookbook> allSimpleCookbooks() {
         return simpleCookbookRepository.findAll();
     }
+
+    public List<SimpleCookbook> SimpleCookbooksByKeyword(String keyword) {
+        return simpleCookbookRepository.findByKeyword(keyword);
+    }
 }
