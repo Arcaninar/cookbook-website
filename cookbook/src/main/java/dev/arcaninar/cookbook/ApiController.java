@@ -39,7 +39,7 @@ public class ApiController {
     @GetMapping("/cookbook/{id}")
     public ResponseEntity<?> getCookbookById(@PathVariable String id) {
         try {
-            ObjectId objectId = new ObjectId(id); // Convert string to ObjectId
+            ObjectId objectId = new ObjectId(id);
             Cookbook cookbook = cookbookService.cookbookById(objectId);
             if (cookbook.getId() == null) {
                 return new ResponseEntity<>("Cookbook with the given Id does not exist", HttpStatus.NOT_FOUND);
@@ -56,7 +56,21 @@ public class ApiController {
     }
 
     @PostMapping("/new/rating")
-    public ResponseEntity<Rating> createRating(@RequestBody Map<String, String> payload) {
-        return new ResponseEntity<>(ratingService.createRating(payload.get("cookbookId"), Integer.valueOf(payload.get("ratingValue")), payload.get("review")), HttpStatus.CREATED);
+    public ResponseEntity<Rating> createNewRating(@RequestBody Map<String, String> payload) {
+        return new ResponseEntity<>(ratingService.createRating(Integer.valueOf(payload.get("ratingValue")), payload.get("review"), payload.get("cookbookId")), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/modify/rating/{id}")
+    public ResponseEntity<String> modifyExistingRating(@PathVariable String id, @RequestBody Map<String, String> payload) {
+        try {
+            ObjectId objectId = new ObjectId(id);
+            Rating rating = ratingService.modifyRating(objectId, Integer.valueOf(payload.get("ratingValue")), payload.get("review"), payload.get("cookbookId"));
+            if (rating.getId() == null) {
+                return new ResponseEntity<>("Rating with the given Id does not exist", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("Invalid Id format", HttpStatus.BAD_REQUEST);
+        }
     }
 }

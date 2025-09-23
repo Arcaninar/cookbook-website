@@ -9,6 +9,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+import java.util.Optional;
+
 @Service
 public class RatingService {
     @Autowired
@@ -20,7 +23,7 @@ public class RatingService {
     @Autowired
     private CookbookService cookbookService;
 
-    public Rating createRating(String cookbookId, Integer ratingValue, String review) {
+    public Rating createRating(Integer ratingValue, String review, String cookbookId) {
         Rating rating = ratingRepository.insert(new Rating(ratingValue, review));
 
         Cookbook cookbook = cookbookService.cookbookById(new ObjectId(cookbookId));
@@ -34,6 +37,36 @@ public class RatingService {
 
         mongoTemplate.update(Cookbook.class)
                 .matching(Criteria.where("_id").is(cookbookId))
+                .apply(update)
+                .first();
+
+        return rating;
+    }
+
+    public Rating modifyRating(ObjectId objectId, Integer ratingValue, String review, String cookbookId) {
+        Rating rating = ratingRepository.findById(objectId).orElse(new Rating());
+
+        if (rating.getId() == null) {
+            return new Rating();
+        }
+
+        if (!Objects.equals(rating.getRating(), ratingValue)) {
+            Cookbook cookbook = cookbookService.cookbookById(new ObjectId(cookbookId));
+
+            double newRating = (cookbook.getRating() * cookbook.getRatingCount() - rating.getRating() + ratingValue) / cookbook.getRatingCount();
+
+            mongoTemplate.update(Cookbook.class)
+                    .matching(Criteria.where("_id").is(cookbookId))
+                    .apply(new Update().set("rating", newRating))
+                    .first();
+        }
+
+        Update update = new Update()
+                .set("rating", ratingValue)
+                .set("review", review);
+
+        mongoTemplate.update(Rating.class)
+                .matching(Criteria.where("_id").is(objectId.toString()))
                 .apply(update)
                 .first();
 
