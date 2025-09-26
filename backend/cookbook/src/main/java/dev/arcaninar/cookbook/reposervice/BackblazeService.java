@@ -20,7 +20,6 @@ public class BackblazeService {
     private String bucketName;
 
     public String getFile(String fileName) {
-        System.out.println(bucketName);
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(fileName)
