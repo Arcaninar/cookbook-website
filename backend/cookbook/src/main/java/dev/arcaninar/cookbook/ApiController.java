@@ -1,8 +1,8 @@
 package dev.arcaninar.cookbook;
 
-import dev.arcaninar.cookbook.documents.Cookbook;
-import dev.arcaninar.cookbook.documents.Rating;
-import dev.arcaninar.cookbook.documents.SimpleCookbook;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import dev.arcaninar.cookbook.exceptions.ResourceNotFoundException;
 import dev.arcaninar.cookbook.reposervice.CookbookService;
 import dev.arcaninar.cookbook.reposervice.RatingService;
 import dev.arcaninar.cookbook.reposervice.SimpleCookbookService;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -26,31 +25,39 @@ public class ApiController {
     private RatingService ratingService;
 
     @GetMapping("/cookbooks")
-    public ResponseEntity<List<SimpleCookbook>> getAllCookbooks() {
+    public ResponseEntity<List<JsonNode>> getAllCookbooks() throws JsonProcessingException {
         return new ResponseEntity<>(simpleCookbookService.allSimpleCookbooks(), HttpStatus.OK);
     }
 
     @GetMapping("/cookbooks/search")
-    public ResponseEntity<List<SimpleCookbook>> getCookbooksByKeyword(@RequestParam String keyword) {
+    public ResponseEntity<List<JsonNode>> getCookbooksByKeyword(@RequestParam String keyword) throws JsonProcessingException {
         return new ResponseEntity<>(simpleCookbookService.SimpleCookbooksByKeyword(keyword), HttpStatus.OK);
     }
 
     @GetMapping("/cookbook/{id}")
     public ResponseEntity<?> getCookbookById(@PathVariable String id) {
         try {
-            Cookbook cookbook = cookbookService.cookbookById(id);
-            if (cookbook.getId() == null) {
-                return new ResponseEntity<>("Cookbook with the given Id does not exist", HttpStatus.NOT_FOUND);
-            }
+            JsonNode cookbook = cookbookService.cookbookById(id);
             return new ResponseEntity<>(cookbook, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Invalid Id format", HttpStatus.BAD_REQUEST);
+        } catch (JsonProcessingException e) {
+            return new ResponseEntity<>("An unexpected error occurred while processing the request.", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping("/cookbook/title/{name}")
-    public ResponseEntity<Optional<Cookbook>> getCookbookByName(@PathVariable String name) {
-        return new ResponseEntity<>(cookbookService.cookbookByName(name), HttpStatus.OK);
+    public ResponseEntity<?> getCookbookByName(@PathVariable String name) {
+        try {
+            JsonNode cookbook = cookbookService.cookbookByName(name);
+            return new ResponseEntity<>(cookbook, HttpStatus.OK);
+        } catch (JsonProcessingException e) {
+            return new ResponseEntity<>("An unexpected error occurred while processing the request.", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("/new/rating")
@@ -66,26 +73,24 @@ public class ApiController {
     @PutMapping("/modify/rating/{id}")
     public ResponseEntity<String> modifyExistingRating(@PathVariable String id, @RequestBody Map<String, String> payload) {
         try {
-            Rating rating = ratingService.modifyRating(id, Integer.valueOf(payload.get("ratingValue")), payload.get("review"), payload.get("cookbookId"));
-            if (rating.getId() == null) {
-                return new ResponseEntity<>("Rating with the given Id does not exist", HttpStatus.NOT_FOUND);
-            }
+            ratingService.modifyRating(id, Integer.valueOf(payload.get("ratingValue")), payload.get("review"), payload.get("cookbookId"));
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Invalid Id or cookbookId format", HttpStatus.BAD_REQUEST);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping("/delete/rating")
     public ResponseEntity<String> deleteExistingRating(@RequestParam String id, @RequestParam String cookbookId) {
         try {
-            Rating rating = ratingService.deleteRating(id, cookbookId);
-            if (rating.getId() == null) {
-                return new ResponseEntity<>("Rating with the given Id does not exist", HttpStatus.NOT_FOUND);
-            }
+            ratingService.deleteRating(id, cookbookId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Invalid Id or cookbookId format", HttpStatus.BAD_REQUEST);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 }

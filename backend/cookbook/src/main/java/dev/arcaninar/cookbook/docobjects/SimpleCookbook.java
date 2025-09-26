@@ -1,8 +1,8 @@
-package dev.arcaninar.cookbook.documents;
+package dev.arcaninar.cookbook.docobjects;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import dev.arcaninar.cookbook.ObjectIdSerializer;
+import dev.arcaninar.cookbook.config.ObjectIdSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bson.types.ObjectId;
@@ -25,4 +25,5 @@ public class SimpleCookbook {
     private List<String> ingredients;
     private List<String> labels;
     private Double rating;
+    private String imageName;
 }

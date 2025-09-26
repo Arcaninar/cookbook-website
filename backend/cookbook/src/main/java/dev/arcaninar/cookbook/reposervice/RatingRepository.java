@@ -1,6 +1,6 @@
 package dev.arcaninar.cookbook.reposervice;
 
-import dev.arcaninar.cookbook.documents.Rating;
+import dev.arcaninar.cookbook.docobjects.Rating;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;

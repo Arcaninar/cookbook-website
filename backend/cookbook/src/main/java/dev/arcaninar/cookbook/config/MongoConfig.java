@@ -1,4 +1,4 @@
-package dev.arcaninar.cookbook;
+package dev.arcaninar.cookbook.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

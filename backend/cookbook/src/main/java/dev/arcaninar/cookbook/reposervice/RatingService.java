@@ -1,7 +1,8 @@
 package dev.arcaninar.cookbook.reposervice;
 
-import dev.arcaninar.cookbook.documents.Cookbook;
-import dev.arcaninar.cookbook.documents.Rating;
+import dev.arcaninar.cookbook.docobjects.Cookbook;
+import dev.arcaninar.cookbook.docobjects.Rating;
+import dev.arcaninar.cookbook.exceptions.ResourceNotFoundException;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -9,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.Map.Entry;
 import java.util.Objects;
 
 @Service
@@ -25,9 +27,11 @@ public class RatingService {
     public Rating createRating(Integer ratingValue, String review, String cookbookId) {
         Rating rating = ratingRepository.insert(new Rating(ratingValue, review));
 
-        Cookbook cookbook = cookbookService.cookbookById(cookbookId);
+        Entry<Double, Integer> ratingStats = cookbookService.cookbookRatingStats(cookbookId);
+        Double currentRatingValue = ratingStats.getKey();
+        Integer currentRatingCount = ratingStats.getValue();
 
-        double newRatingValue = (cookbook.getRating() * cookbook.getRatingCount() + ratingValue) / (cookbook.getRatingCount() + 1);
+        double newRatingValue = (currentRatingValue * currentRatingCount + ratingValue) / (currentRatingCount + 1);
 
         Update update = new Update()
                 .push("ratingList").value(rating)
@@ -42,17 +46,19 @@ public class RatingService {
         return rating;
     }
 
-    public Rating modifyRating(String id, Integer ratingValue, String review, String cookbookId) {
+    public void modifyRating(String id, Integer ratingValue, String review, String cookbookId) {
         Rating rating = ratingRepository.findById(new ObjectId(id)).orElse(new Rating());
 
         if (rating.getId() == null) {
-            return new Rating();
+            throw new ResourceNotFoundException("Rating with the given Id does not exist");
         }
 
         if (!Objects.equals(rating.getRating(), ratingValue)) {
-            Cookbook cookbook = cookbookService.cookbookById(cookbookId);
+            Entry<Double, Integer> ratingStats = cookbookService.cookbookRatingStats(cookbookId);
+            Double currentRatingValue = ratingStats.getKey();
+            Integer currentRatingCount = ratingStats.getValue();
 
-            double newRatingValue = (cookbook.getRating() * cookbook.getRatingCount() - rating.getRating() + ratingValue) / cookbook.getRatingCount();
+            double newRatingValue = (currentRatingValue * currentRatingCount - rating.getRating() + ratingValue) / currentRatingCount;
 
             mongoTemplate.update(Cookbook.class)
                     .matching(Criteria.where("_id").is(cookbookId))
@@ -68,20 +74,20 @@ public class RatingService {
                 .matching(Criteria.where("_id").is(id))
                 .apply(update)
                 .first();
-
-        return rating;
     }
 
-    public Rating deleteRating(String id, String cookbookId) {
+    public void deleteRating(String id, String cookbookId) {
         Rating rating = ratingRepository.findById(new ObjectId(id)).orElse(new Rating());
 
         if (rating.getId() == null) {
-            return new Rating();
+            throw new ResourceNotFoundException("Rating with the given Id does not exist");
         }
 
-        Cookbook cookbook = cookbookService.cookbookById(cookbookId);
+        Entry<Double, Integer> ratingStats = cookbookService.cookbookRatingStats(cookbookId);
+        Double currentRatingValue = ratingStats.getKey();
+        Integer currentRatingCount = ratingStats.getValue();
 
-        double newRatingValue = (cookbook.getRating() * cookbook.getRatingCount() - rating.getRating()) / (cookbook.getRatingCount() - 1);
+        double newRatingValue = (currentRatingValue * currentRatingCount - rating.getRating()) / (currentRatingCount - 1);
 
         Update update = new Update()
                 .pull("ratingList", rating)
@@ -94,8 +100,5 @@ public class RatingService {
                 .first();
 
         ratingRepository.deleteById(new ObjectId(id));
-
-        return rating;
     }
-
 }

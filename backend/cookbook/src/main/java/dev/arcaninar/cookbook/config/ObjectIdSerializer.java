@@ -1,4 +1,4 @@
-package dev.arcaninar.cookbook;
+package dev.arcaninar.cookbook.config;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

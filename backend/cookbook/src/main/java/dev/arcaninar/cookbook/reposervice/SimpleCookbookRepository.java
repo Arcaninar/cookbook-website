@@ -1,6 +1,6 @@
 package dev.arcaninar.cookbook.reposervice;
 
-import dev.arcaninar.cookbook.documents.SimpleCookbook;
+import dev.arcaninar.cookbook.docobjects.SimpleCookbook;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;

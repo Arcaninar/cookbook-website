@@ -1,10 +1,11 @@
-package dev.arcaninar.cookbook.documents;
+package dev.arcaninar.cookbook.docobjects;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import dev.arcaninar.cookbook.ObjectIdSerializer;
+import dev.arcaninar.cookbook.config.ObjectIdSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Document(collection = "cookbook")
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class Cookbook {
     @Id
@@ -32,20 +34,5 @@ public class Cookbook {
     private Integer ratingCount;
     @DocumentReference
     private List<Rating> ratingList;
-
-    public Cookbook() {
-        this.id = null;
-        this.name = "";
-        this.category = "";
-        this.cookingTimeUnit = "";
-        this.cookingTimeValue = 0;
-        this.ingredients = List.of();
-        this.tools = List.of();
-        this.steps = List.of();
-        this.labels = List.of();
-        this.nutritionalFacts = new NutritionalFacts();
-        this.rating = 0.0;
-        this.ratingCount = 0;
-        this.ratingList = List.of();
-    }
+    private String imageName;
 }
