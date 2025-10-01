@@ -1,38 +1,24 @@
 package dev.arcaninar.cookbook.docobjects;
 
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import dev.arcaninar.cookbook.config.ObjectIdSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.util.List;
 
 @Document(collection = "cookbook")
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Cookbook {
-    @Id
-    @JsonSerialize(using = ObjectIdSerializer.class)
-    private ObjectId id;
-    private String name;
-    private String category;
-    private String cookingTimeUnit;
-    private Integer cookingTimeValue;
-    private List<String> ingredients;
+public class Cookbook extends SimpleCookbook {
     private List<String> tools;
     private List<String> steps;
-    private List<String> labels;
     private NutritionalFacts nutritionalFacts;
-    private Double rating;
     private Integer ratingCount;
     @DocumentReference
     private List<Rating> ratingList;
-    private String imageName;
 }
