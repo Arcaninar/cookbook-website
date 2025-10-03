@@ -59,7 +59,7 @@ public class ApiController {
     @PostMapping("/new/rating")
     public ResponseEntity<?> createNewRating(@RequestBody Map<String, String> payload) {
         try {
-            return new ResponseEntity<>(ratingService.createRating(Integer.valueOf(payload.get("ratingValue")), payload.get("review"), payload.get("cookbookId")), HttpStatus.CREATED);
+            return new ResponseEntity<>(ratingService.createRating(Integer.valueOf(payload.get("rating")), payload.get("review"), payload.get("cookbookId")), HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Invalid cookbookId format", HttpStatus.BAD_REQUEST);
         }
@@ -69,7 +69,7 @@ public class ApiController {
     @PutMapping("/modify/rating/{id}")
     public ResponseEntity<String> modifyExistingRating(@PathVariable String id, @RequestBody Map<String, String> payload) {
         try {
-            ratingService.modifyRating(id, Integer.valueOf(payload.get("ratingValue")), payload.get("review"), payload.get("cookbookId"));
+            ratingService.modifyRating(id, Integer.valueOf(payload.get("rating")), payload.get("review"), payload.get("cookbookId"));
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Invalid Id or cookbookId format", HttpStatus.BAD_REQUEST);

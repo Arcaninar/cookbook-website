@@ -24,7 +24,7 @@ public class CookbookService {
             throw new ResourceNotFoundException("Cookbook with the given Id does not exist");
         }
 
-        cookbook.setImage(backblazeService.getFile(cookbook.getImage()));
+        cookbook.setImage(backblazeService.getImageBase64(cookbook.getImage()));
 
         return cookbook;
     }
@@ -36,7 +36,7 @@ public class CookbookService {
             throw new ResourceNotFoundException("Cookbook with the given name does not exist");
         }
 
-        cookbook.setImage(backblazeService.getFile(cookbook.getImage()));
+        cookbook.setImage(backblazeService.getImageBase64(cookbook.getImage()));
 
         return cookbook;
     }

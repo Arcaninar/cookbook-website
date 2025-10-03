@@ -16,7 +16,7 @@ public class SimpleCookbookService {
 
     private List<SimpleCookbook> convertImageToBase64(List<SimpleCookbook> simpleCookbookList) {
         for (SimpleCookbook simpleCookbook: simpleCookbookList) {
-            simpleCookbook.setImage(backblazeService.getFile(simpleCookbook.getImage()));
+            simpleCookbook.setImage(backblazeService.getImageBase64(simpleCookbook.getImage()));
         }
         return simpleCookbookList;
     }

@@ -19,7 +19,7 @@ public class BackblazeService {
     @Value("${backblaze.s3.bucket.name}")
     private String bucketName;
 
-    public String getFile(String fileName) {
+    public String getImageBase64(String fileName) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(fileName)
@@ -27,6 +27,7 @@ public class BackblazeService {
 
         ResponseBytes<GetObjectResponse> responseBytes = s3Client.getObjectAsBytes(getObjectRequest);
         byte[] fileBytes = responseBytes.asByteArray();
-        return Base64.getEncoder().encodeToString(fileBytes);
+        String byteString = Base64.getEncoder().encodeToString(fileBytes);
+        return String.format("data:image/%s;base64,%s", fileName.split("\\.")[1], byteString);
     }
 }
